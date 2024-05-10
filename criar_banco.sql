@@ -44,7 +44,7 @@ CREATE TABLE Estudante (
 
 CREATE TABLE Especializacao (
     ID_especializao serial primary key,
-    nome_especializao varchar(200),   
+    nome_especializao varchar(200)
 );
 
 
@@ -56,5 +56,4 @@ CREATE TABLE Modulo (
     id_curso INT,
     FOREIGN KEY (id_curso) REFERENCES Curso(ID)
 );
-
 
