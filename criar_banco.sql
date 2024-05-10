@@ -12,7 +12,8 @@ CREATE TABLE Curso (
 
 CREATE TABLE Especializacao (
     ID_especializao SERIAL PRIMARY KEY,
-    nome_especializacao VARCHAR(200)
+    nome_especializacao VARCHAR(200),
+	descricao_especializacao VARCHAR(200)
 );
 
 CREATE TABLE Facilitador (
@@ -40,6 +41,7 @@ CREATE TABLE Estudante (
     idade INT,
     email VARCHAR(100),
     telefone VARCHAR(20),
+    cpf VARCHAR(20) UNIQUE,
     status_evasao BOOLEAN,
     id_turma INT,
     FOREIGN KEY (id_turma) REFERENCES Turma(ID)
