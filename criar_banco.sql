@@ -13,9 +13,10 @@ CREATE TABLE Curso (
 CREATE TABLE Facilitador (
     ID SERIAL PRIMARY KEY,
     nome VARCHAR(100),
-    especializacao VARCHAR(100),
+    ID_especializao INT,
     email VARCHAR(100),
     telefone VARCHAR(20)
+    
 );
 
 CREATE TABLE Turma (
@@ -43,9 +44,7 @@ CREATE TABLE Estudante (
 
 CREATE TABLE Especializacao (
     ID_especializao serial primary key,
-    nome_especializao varchar(200),
-    FOREIGN KEY (id_facilitador) REFERENCES Facilitador(ID)
-    
+    nome_especializao varchar(200),   
 );
 
 
