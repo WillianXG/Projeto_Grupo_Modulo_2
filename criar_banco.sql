@@ -10,13 +10,18 @@ CREATE TABLE Curso (
     qtd_modulo INT
 );
 
+CREATE TABLE Especializacao (
+    ID_especializao SERIAL PRIMARY KEY,
+    nome_especializacao VARCHAR(200)
+);
+
 CREATE TABLE Facilitador (
     ID SERIAL PRIMARY KEY,
     nome VARCHAR(100),
-    ID_especializao INT,
+    ID_especializacao INT,
     email VARCHAR(100),
-    telefone VARCHAR(20)
-    
+    telefone VARCHAR(20),
+    FOREIGN KEY (ID_especializacao) REFERENCES Especializacao(ID_especializao)
 );
 
 CREATE TABLE Turma (
@@ -40,15 +45,6 @@ CREATE TABLE Estudante (
     FOREIGN KEY (id_turma) REFERENCES Turma(ID)
 );
 
-
-
-CREATE TABLE Especializacao (
-    ID_especializao serial primary key,
-    nome_especializao varchar(200)
-);
-
-
-
 CREATE TABLE Modulo (
     ID SERIAL PRIMARY KEY,
     nome VARCHAR(100),
@@ -56,4 +52,3 @@ CREATE TABLE Modulo (
     id_curso INT,
     FOREIGN KEY (id_curso) REFERENCES Curso(ID)
 );
-
