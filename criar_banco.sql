@@ -44,7 +44,6 @@ CREATE TABLE Estudante (
 CREATE TABLE Especializacao (
     ID_especializao serial primary key,
     nome_especializao varchar(200),
-    id_facilitador int,
     FOREIGN KEY (id_facilitador) REFERENCES Facilitador(ID)
     
 );
