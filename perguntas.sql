@@ -1,58 +1,90 @@
---Selecionar a quantidade total de estudantes cadastrados no banco:
-SELECT COUNT(*) AS total_estudantes FROM Estudante;
+SET search_path TO resilia;
+
+-- quantidade de estudantes
+select COUNT(*) from estudante
+
+--Selecionar quais pessoas facilitadoras atuam em mais de uma turma
+SELECT f.id, f.nome, COUNT(t.id) AS qtd
+FROM Facilitador AS f
+LEFT JOIN Turma AS t ON f.id = t.id_facilitador
+GROUP BY f.id, f.nome
+HAVING COUNT(t.id) > 1
+ORDER BY qtd DESC;
 
 
+-- view que selecione a porcentagem de estudantes com status de evasão agrupados por turma;
 
--- Selecionar quais pessoas facilitadoras atuam em mais de uma turma:
-SELECT F.nome, COUNT(*) AS qtd_turmas
-FROM Facilitador F
-JOIN Turma T ON F.ID = T.id_facilitador
-GROUP BY F.ID
-HAVING COUNT(*) > 1;
-
-
-
-
--- Criar uma view que selecione a porcentagem de estudantes com status de evasão agrupados por turma:
-CREATE VIEW PorcentagemEvasao AS
-SELECT T.nome AS turma, 
-       COUNT(E.id) AS total_estudantes, 
-       ROUND((SUM(CASE WHEN E.status_evasao THEN 1 ELSE 0 END) / COUNT(E.id)) * 100, 2) AS percentual_evasao
-FROM Turma T
-JOIN Estudante E ON T.ID = E.id_turma
-GROUP BY T.ID;
+CREATE VIEW Porcentagem_Evasao_Por_Turma AS
+SELECT 
+    t.ID AS id_turma,
+    COUNT(CASE WHEN e.status_evasao = TRUE THEN 1 END) AS qtd_evasao,
+    COUNT(*) AS total_estudantes,
+    ROUND((COUNT(CASE WHEN e.status_evasao = TRUE THEN 1 END) * 100.0 / COUNT(*)), 2) AS percentual_evasao
+FROM 
+    Turma AS t
+LEFT JOIN 
+    Estudante AS e ON t.ID = e.id_turma
+GROUP BY 
+    t.ID
+ORDER BY 
+    percentual_evasao DESC;
 
 
+SELECT * FROM Porcentagem_Evasao_Por_Turma;
 
--- Criar um trigger para ser disparado quando o atributo status de um estudante for atualizado e inserir um novo dado em uma tabela de log.
+
+--Crie um trigger para ser disparado quando o atributo status de um estudante for atualizado e inserir um novo dado em uma tabela de log.
+
+-- Criar a tabela de log
 CREATE TABLE LogAtualizacaoStatus (
     ID SERIAL PRIMARY KEY,
     id_estudante INT,
-    novo_status BOOLEAN,
-    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    novo_status BOOLEAN
 );
 
-CREATE OR REPLACE FUNCTION atualizacao_status()
+-- Criar o trigger
+CREATE OR REPLACE FUNCTION atualizacao_status_trigger_function()
 RETURNS TRIGGER AS $$
 BEGIN
-    INSERT INTO LogAtualizacaoStatus (id_estudante, novo_status)
-    VALUES (NEW.ID, NEW.status_evasao);
+    IF NEW.status_evasao != OLD.status_evasao THEN
+        INSERT INTO LogAtualizacaoStatus (id_estudante, novo_status)
+        VALUES (NEW.ID, NEW.status_evasao);
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER AtualizacaoStatus
-AFTER UPDATE ON Estudante
+-- Associar o trigger à tabela Estudante
+CREATE TRIGGER atualizacao_status_trigger
+AFTER UPDATE OF status_evasao ON Estudante
 FOR EACH ROW
-EXECUTE FUNCTION atualizacao_status();
+EXECUTE FUNCTION atualizacao_status_trigger_function();
 
 
 
+-- Atualizar o status de evasão de alguns alunos para testar a trigger
+UPDATE Estudante
+SET status_evasao = FALSE -- trocar para TRUE ou FALSE para editar o status dos alunos
+WHERE ID IN (1, 7, 9);   -- selecionar os alunos para que irão mudar o status
 
--- Quais são os cursos ministrados por facilitadores especializados em uma determinada área?
+SELECT * FROM LogAtualizacaoStatus; -- ver tabela log
 
-SELECT C.nome AS curso
-FROM Curso C
-JOIN Turma T ON C.ID = T.id_curso
-JOIN Facilitador F ON T.id_facilitador = F.ID
-WHERE F.especializacao = 'Especialização desejada';
+-- PERGUNTA EXTRA:Quais são os cursos em que os estudantes estão matriculados e que têm uma duração superior N meses de meses?
+
+SELECT 
+    c.nome AS nome_curso,
+    c.duracao_meses AS duracao_curso,
+    COUNT(e.ID) AS total_estudantes
+FROM 
+    Curso AS c
+JOIN 
+    Turma AS t ON c.ID = t.id_curso
+JOIN 
+    Estudante AS e ON t.ID = e.id_turma
+WHERE 
+    c.duracao_meses > 5  -- NÚMERO DE MESES
+GROUP BY 
+    c.nome, c.duracao_meses
+ORDER BY 
+    c.duracao_meses DESC;
