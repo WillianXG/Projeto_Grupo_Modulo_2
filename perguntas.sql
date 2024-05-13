@@ -39,7 +39,7 @@ SELECT * FROM Porcentagem_Evasao_Por_Turma;
 CREATE TABLE LogAtualizacaoStatus (
     ID SERIAL PRIMARY KEY,
     id_estudante INT,
-    data_atualizacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    data_atualizacao TIMESTAMP DEFAULT date_trunc('second', CURRENT_TIMESTAMP),
     novo_status BOOLEAN
 );
 
@@ -62,11 +62,10 @@ FOR EACH ROW
 EXECUTE FUNCTION atualizacao_status_trigger_function();
 
 
-
 -- Atualizar o status de evasão de alguns alunos para testar a trigger
 UPDATE Estudante
-SET status_evasao = FALSE -- trocar para TRUE ou FALSE para editar o status dos alunos
-WHERE ID IN (1, 7, 9);   -- selecionar os alunos para que irão mudar o status
+SET status_evasao = true -- trocar para TRUE ou FALSE para editar o status dos alunos
+WHERE ID IN (2, 7, 9);   -- selecionar os alunos para que irão mudar o status
 
 SELECT * FROM LogAtualizacaoStatus; -- ver tabela log
 
