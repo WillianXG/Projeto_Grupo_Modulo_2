@@ -71,19 +71,36 @@ SELECT * FROM LogAtualizacaoStatus; -- ver tabela log
 
 -- PERGUNTA EXTRA:Quais são os cursos em que os estudantes estão matriculados e que têm uma duração superior N meses de meses?
 
-SELECT 
-    c.nome AS nome_curso,
-    c.duracao_meses AS duracao_curso,
-    COUNT(e.ID) AS total_estudantes
-FROM 
-    Curso AS c
-JOIN 
-    Turma AS t ON c.ID = t.id_curso
-JOIN 
-    Estudante AS e ON t.ID = e.id_turma
-WHERE 
-    c.duracao_meses > 5  -- NÚMERO DE MESES
-GROUP BY 
-    c.nome, c.duracao_meses
-ORDER BY 
-    c.duracao_meses DESC;
+
+DROP FUNCTION IF EXISTS tempo_minimo_cursos;
+
+CREATE FUNCTION tempo_minimo_cursos(duracao_minima INT) RETURNS TABLE (
+    nome_curso VARCHAR(100),
+    duracao_curso INT,
+    total_estudantes BIGINT  -- Alteração aqui
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT 
+        c.nome AS nome_curso,
+        c.duracao_meses AS duracao_curso,
+        COUNT(e.ID) AS total_estudantes
+    FROM 
+        Curso AS c
+    JOIN 
+        Turma AS t ON c.ID = t.id_curso
+    JOIN 
+        Estudante AS e ON t.ID = e.id_turma
+    WHERE 
+        c.duracao_meses > duracao_minima -- Variavél
+    GROUP BY 
+        c.nome, c.duracao_meses
+    ORDER BY 
+        c.duracao_meses DESC;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+SELECT * FROM tempo_minimo_cursos(5);
