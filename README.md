@@ -23,6 +23,5 @@ Este repositório está organizado da seguinte forma:
 - `docs`: Documentação do projeto.
 - `sql`: Scripts SQL para criação do banco de dados, tabelas e consultas.
 
-## Como Contribuir
-
-Contribuições são bem-vindas! Se deseja contribuir com melhorias, novas funcionalidades ou correções de bugs, por favor, abra uma issue ou envie um pull request.
+<a name="apresentacao"></a>
+[Apresentação](https://gamma.app/docs/Projeto-em-Grupo-do-Modulo-2-9c2jzpf5wrh4d4z)
