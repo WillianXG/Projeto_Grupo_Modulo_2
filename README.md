@@ -20,7 +20,7 @@ O objetivo deste projeto é modernizar o sistema de armazenamento de dados da Re
 
 Este repositório está organizado da seguinte forma:
 
-- `docs`: Documentação do projeto.
+- `png`: Diagrama do projeto.
 - `sql`: Scripts SQL para criação do banco de dados, tabelas e consultas.
 
 <a name="apresentacao"></a>
